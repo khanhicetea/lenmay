@@ -13,8 +13,7 @@ const askYesNo = (msg, defaultValue) => {
     return prompt(format("%s [%s] ", msg, defaultValue ? "Y/n" : "y/N"), defaultValue ? 'y' : 'n').toLowerCase() == 'y'
 }
 
-const runScriptTemplate = (template, ctx, onDone, onError = null) => {
-    const content = nunjucks.render(template, ctx)
+const runScript = (content, onDone, onError = null) => {
     const filePath = format("/tmp/lenmay-%s.sh", Math.ceil(Math.random() * 10E10))
 
     writeFileSync(filePath, content)
@@ -36,6 +35,11 @@ const runScriptTemplate = (template, ctx, onDone, onError = null) => {
         }
     })
     .on('error', (err) => { onError(err) })
+}
+
+const runScriptTemplate = (template, ctx, onDone, onError = null) => {
+    const content = nunjucks.render(template, ctx)
+    runScript(content, onDone, onError)
 }
 
 program.version("1.0.0");
