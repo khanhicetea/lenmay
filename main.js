@@ -5,6 +5,7 @@ const { program } = require('commander')
 const { execSync } = require("child_process")
 const nunjucks = require('nunjucks')
 const prompt = require('prompt-sync')();
+const execa = require('execa');
 
 nunjucks.configure({ autoescape: true })
 
@@ -12,31 +13,37 @@ const askYesNo = (msg, defaultValue) => {
     return prompt(format("%s [%s] ", msg, defaultValue ? "Y/n" : "y/N"), defaultValue ? 'y' : 'n').toLowerCase() == 'y'
 }
 
-const runCmd = (cmd, stopIfError = true, printOut = true) => {
-    try {
-        const output = execSync(cmd, {shell: true}).toString()
-        if (printOut) console.log(output)
-    } catch (e) {
-        if (stopIfError) {
-            console.error('[ERROR] ' + cmd)
-            process.exit()
-        }
-    }
-}
-
-const runScriptTemplate = (template, ctx) => {
+const runScriptTemplate = (template, ctx, onDone, onError = null) => {
     const content = nunjucks.render(template, ctx)
     const filePath = format("/tmp/lenmay-%s.sh", Math.ceil(Math.random() * 10E10))
-    console.log(filePath)
+
     writeFileSync(filePath, content)
+
+    onError = onError ? onError : (err) => {
+        console.log(err.message || 'Error')
+    }
+
+    execa('/usr/bin/sh', [filePath], {
+        stdin: process.stdin,
+        stdout: process.stdout,
+        stderr: process.stderr
+    })
+    .on('close', (code, signal) => {
+        if (code === 0) {
+            onDone(code, signal)    
+        } else {
+            onError(new Error(format("Error ! Exit Code %d , Signal %s", code, signal)))
+        }
+    })
+    .on('error', (err) => { onError(err) })
 }
 
-program.version('1.0.0');
+program.version("1.0.0");
 
 program
-    .command('init')
-    .description('Init lenmay')
-    .option('-d, --default', 'Default settings, LEMP stack')
+    .command("init")
+    .description("Init lenmay")
+    .option("-d, --default", "Default settings, LEMP stack")
     .action((options) => {
         let settings = {
             timezone: "Asia/Ho_Chi_Minh",
@@ -58,7 +65,10 @@ program
 
         console.log(settings)
 
-        runScriptTemplate('templates/init.sh.twig', settings)
+        // runScriptTemplate('templates/init.sh.twig', settings)
+        runScriptTemplate("templates/test.sh.twig", settings, () => {
+            console.log("Done!")
+        })
     })
 
 program.parse(process.argv);
