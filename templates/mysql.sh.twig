@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# MySQL 8
+export DEBIAN_FRONTEND=noninteractive
+sudo apt install mysql-server mysql-client -y
+sudo systemctl enable mysql.service
+sudo systemctl restart mysql.service
+echo -e "[client]\nuser=root\npassword={{ mysql_root_password }}" > ~/.my.cnf
+chmod 600 ~/.my.cnf
+
+echo "### Create another root user"
+echo "CREATE USER 'lenmay'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';" | mysql -u root mysql
+echo "GRANT ALL PRIVILEGES ON *.* TO 'lenmay'@'localhost' WITH GRANT OPTION;" | mysql -u root mysql
+echo "FLUSH PRIVILEGES;" | mysql -u root mysql

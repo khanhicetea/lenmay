@@ -3,6 +3,7 @@ const { format } = require('util')
 const { writeFileSync } = require('fs')
 const { program } = require('commander')
 const { execSync } = require("child_process")
+const { randomBytes } = require('crypto')
 const nunjucks = require('nunjucks')
 const prompt = require('prompt-sync')();
 const execa = require('execa');
@@ -11,6 +12,16 @@ nunjucks.configure({ autoescape: true })
 
 const askYesNo = (msg, defaultValue) => {
     return prompt(format("%s [%s] ", msg, defaultValue ? "Y/n" : "y/N"), defaultValue ? 'y' : 'n').toLowerCase() == 'y'
+}
+
+const randomString = (len, charSet) => {
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let random = '';
+    for (var i = 0; i < len; i++) {
+        const randomPoz = Math.floor(Math.random() * charSet.length);
+        random += charSet.substring(randomPoz,randomPoz+1);
+    }
+    return random
 }
 
 const runScript = (content, onDone, onError = null) => {
@@ -22,7 +33,7 @@ const runScript = (content, onDone, onError = null) => {
         console.log(err.message || 'Error')
     }
 
-    execa('/usr/bin/sh', [filePath], {
+    execa('/usr/bin/cat', [filePath], {
         stdin: process.stdin,
         stdout: process.stdout,
         stderr: process.stderr
@@ -66,10 +77,15 @@ program
             settings.nodejs = askYesNo("Nodejs ?", settings.nodejs)
             settings.php = askYesNo("PHP ?", settings.php)
         }
-
+        
+        // Write down settings
         console.log(settings)
 
-        // runScriptTemplate('templates/init.sh.twig', settings)
+        settings.mysql_root_password = randomString(12)
+
+        runScriptTemplate('templates/init.sh.twig', settings, () => {
+            console.log("Done!")
+        })
         runScriptTemplate("templates/test.sh.twig", settings, () => {
             console.log("Done!")
         })

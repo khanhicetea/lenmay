@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Timezone
+sudo timedatectl set-timezone {{ timezone }}
+sudo timedatectl set-ntp on
+
+# Harden linux
+echo "kernel.randomize_va_space = 1" | sudo tee -a /etc/sysctl.conf
+echo "kernel.sched_migration_cost_ns = 5000000" | sudo tee -a /etc/sysctl.conf
+echo "kernel.sched_autogroup_enabled = 0" | sudo tee -a /etc/sysctl.conf
+
+echo "net.core.rmem_max = 16777216" | sudo tee -a /etc/sysctl.conf
+echo "net.core.wmem_max = 16777216" | sudo tee -a /etc/sysctl.conf
+echo "net.core.somaxconn = 1024" | sudo tee -a /etc/sysctl.conf
+
+echo "net.ipv4.ip_local_port_range = 1024 65535" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_tw_recycle = 1" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_tw_reuse = 1" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.conf.all.rp_filter = 1" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.conf.all.accept_source_route = 0" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_timestamps = 0" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_syncookies = 1" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_max_syn_backlog = 4096" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_synack_retries = 3" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv4.tcp_max_tw_buckets = 1440000" | sudo tee -a /etc/sysctl.conf
+
+echo "net.ipv6.conf.all.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv6.conf.default.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv6.conf.lo.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
+
+echo "fs.file-max = 100000" | sudo tee -a /etc/sysctl.conf
+
+echo "vm.swappiness = 5" | sudo tee -a /etc/sysctl.conf
+echo "vm.dirty_ratio = 60" | sudo tee -a /etc/sysctl.conf
+echo "vm.dirty_background_ratio = 10" | sudo tee -a /etc/sysctl.conf
+
+sudo sysctl -p
+
+# Upgrade system
+sudo add-apt-repository universe
+sudo apt update
+sudo apt list --upgradable
+sudo apt upgrade -y
+
+# Install tools
+sudo apt install ufw wget git screen vim curl zip unzip software-properties-common gnupg -y
+echo "hardstatus alwayslastline" | sudo tee -a /etc/screenrc
+echo "hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B}%Y-%m-%d %{W}%c %{g}]'" | sudo tee -a /etc/screenrc
