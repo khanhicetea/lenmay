@@ -11,5 +11,5 @@ echo "CREATE USER 'lenmay'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}'
 echo "GRANT ALL PRIVILEGES ON *.* TO 'lenmay'@'localhost' WITH GRANT OPTION;" | mysql -u root mysql
 echo "FLUSH PRIVILEGES;" | mysql -u root mysql
 
-echo -e "[client]\nuser=lenmay\npassword={{ mysql_root_password }}" > ~/.my.cnf
+echo "[client]\nuser=lenmay\npassword={{ mysql_root_password }}" > ~/.my.cnf
 chmod 600 ~/.my.cnf

@@ -5,8 +5,10 @@ const { program } = require('commander')
 const { execSync } = require("child_process")
 const { randomBytes } = require('crypto')
 const nunjucks = require('nunjucks')
-const prompt = require('prompt-sync')();
-const execa = require('execa');
+const prompt = require('prompt-sync')()
+const execa = require('execa')
+
+let dryRun = false
 
 nunjucks.configure({ autoescape: true })
 
@@ -33,7 +35,11 @@ const runScript = (content, onDone, onError = null) => {
         console.log(err.message || 'Error')
     }
 
-    execa('/usr/bin/cat', [filePath], {
+    if (dryRun) {
+        return console.log("Dry run : " + filePath)
+    }
+
+    execa('/usr/bin/bash', [filePath], {
         stdin: process.stdin,
         stdout: process.stdout,
         stderr: process.stderr
@@ -59,6 +65,7 @@ program
     .command("init")
     .description("Init lenmay")
     .option("-d, --default", "Default settings, LEMP stack")
+    .option("--dry", "Dry Run")
     .action((options) => {
         let settings = {
             timezone: "Asia/Ho_Chi_Minh",
@@ -68,6 +75,8 @@ program
             nodejs: true,
             php: true,
         }
+
+        dryRun = options.dry
 
         if (!options.default) {
             settings.timezone = prompt("Default timezone ? ", settings.timezone)
@@ -84,9 +93,6 @@ program
         settings.mysql_root_password = randomString(12)
 
         runScriptTemplate('templates/init.sh.twig', settings, () => {
-            console.log("Done!")
-        })
-        runScriptTemplate("templates/test.sh.twig", settings, () => {
             console.log("Done!")
         })
     })
