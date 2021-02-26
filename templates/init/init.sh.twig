@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Should have NodeJS installed
+# curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+# sudo apt install -y nodejs
+
+{% include('templates/init/linux.sh.twig') %}
+
+{% include('templates/init/security.sh.twig') %}
+
+{% include('templates/init/nginx.sh.twig') %}
+
+{% include('templates/init/mysql.sh.twig') %}
+
+{% include('templates/init/redis.sh.twig') %}
+
+{% include('templates/init/php.sh.twig') %}
+
+{% include('templates/init/jobber.sh.twig') %}
+
+# DONE
+echo "BAMMMMM ! It's done !"
+echo "Your MySQL user / password : lenmay / {{ mysql_root_password }}"

@@ -1,16 +1,16 @@
-const { resolve } = require('path')
 const { format } = require('util')
 const { writeFileSync } = require('fs')
 const { program } = require('commander')
-const { execSync } = require("child_process")
-const { randomBytes } = require('crypto')
+const os = require('os')
+const fs = require('fs')
 const nunjucks = require('nunjucks')
 const prompt = require('prompt-sync')()
 const execa = require('execa')
 
-let dryRun = false
-
 nunjucks.configure({ autoescape: true })
+
+let dryRun = false
+const homeDir = os.homedir() + '/.lenmay'
 
 const askYesNo = (msg, defaultValue) => {
     return prompt(format("%s [%s] ", msg, defaultValue ? "Y/n" : "y/N"), defaultValue ? 'y' : 'n').toLowerCase() == 'y'
@@ -39,7 +39,7 @@ const runScript = (content, onDone, onError = null) => {
         return console.log("Dry run : " + filePath)
     }
 
-    execa('/usr/bin/bash', [filePath], {
+    execa('/usr/bin/cat', [filePath], {
         stdin: process.stdin,
         stdout: process.stdout,
         stderr: process.stderr
@@ -74,21 +74,27 @@ program
             redis: true,
             nodejs: true,
             php: true,
+            supervisor: true,
+            netdata: true,
         }
 
         dryRun = options.dry
 
         if (!options.default) {
             settings.timezone = prompt("Default timezone ? ", settings.timezone)
+            
             settings.nginx = askYesNo("NginX ?", settings.nginx)
             settings.mysql = askYesNo("Mysql ?", settings.mysql)
             settings.redis = askYesNo("Redis ?", settings.redis)
             settings.nodejs = askYesNo("Nodejs ?", settings.nodejs)
             settings.php = askYesNo("PHP ?", settings.php)
+            settings.supervisor = askYesNo("Supervior (process manager) ?", settings.supervisor)
+            settings.netdata = askYesNo("Netdata (cloud monitoring) ?", settings.netdata)
         }
         
         // Write down settings
-        console.log(settings)
+        !fs.existsSync(homeDir) && fs.mkdirSync(homeDir);
+        writeFileSync(homeDir + '/settings.json', JSON.stringify(settings))
 
         settings.mysql_root_password = randomString(12)
 

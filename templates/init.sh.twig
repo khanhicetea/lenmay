@@ -8,16 +8,38 @@
 
 {% include('templates/init/security.sh.twig') %}
 
-{% include('templates/init/nginx.sh.twig') %}
+{% if nginx %}
+    {% include('templates/init/nginx.sh.twig') %}
+{% endif %}
 
-{% include('templates/init/mysql.sh.twig') %}
+{% if mysql %}
+    {% include('templates/init/mysql.sh.twig') %}
+{% endif %}
 
-{% include('templates/init/redis.sh.twig') %}
+{% if redis %}
+    {% include('templates/init/redis.sh.twig') %}
+{% endif %}
 
-{% include('templates/init/php.sh.twig') %}
+{% if php %}
+    {% include('templates/init/php.sh.twig') %}
+{% endif %}
 
-{% include('templates/init/jobber.sh.twig') %}
+{% if jobber %}
+    {% include('templates/init/jobber.sh.twig') %}
+{% endif %}
+
+{% if supervisor %}
+    {% include('templates/init/supervisor.sh.twig') %}
+{% endif %}
+
+{% if netdata %}
+    {% include('templates/init/netdata.sh.twig') %}
+{% endif %}
 
 # DONE
 echo "BAMMMMM ! It's done !"
-echo "Your MySQL user / password : lenmay / {{ mysql_root_password }}"
+echo "=== Your MySQL user / password : lenmay / {{ mysql_root_password }}"
+
+{% if netdata %}
+echo "=== Netdata dashboard is active by default, proxy it with NginX or read this https://learn.netdata.cloud/docs/configure/secure-nodes"
+{% endif %}
