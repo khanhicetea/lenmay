@@ -64,7 +64,6 @@ def init(default, dry):
         "nodejs": True,
         "php": True,
         "supervisor": True,
-        "netdata": True,
     }
 
     dryRun = dry
@@ -77,7 +76,6 @@ def init(default, dry):
         settings["nodejs"] = click.confirm("Nodejs ?", settings["nodejs"])
         settings["php"] = click.confirm("PHP ?", settings["php"])
         settings["supervisor"] = click.confirm("Supervisor ?", settings["supervisor"])
-        settings["netdata"] = click.confirm("Netdata ?", settings["netdata"])
 
     # ensure homedir is existed
     if not os.path.exists(home_dir):
