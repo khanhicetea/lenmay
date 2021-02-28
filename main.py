@@ -37,7 +37,7 @@ def run_script(script_content):
     endpoint_cmd = '/usr/bin/cat' if dryRun or os.uname()[1] == 'khanhicetea-xps' else '/usr/bin/sh'
 
     print("Running {} {}".format(endpoint_cmd, tmp_file))
-    with subprocess.Popen([endpoint_cmd, tmp_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, universal_newlines=True) as proc:
+    with subprocess.Popen([endpoint_cmd, tmp_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False) as proc:
         for l in proc.stdout:
             print(l, end='')
     return proc.returncode
@@ -63,7 +63,9 @@ def init(default, dry):
         "redis": True,
         "nodejs": True,
         "php": True,
+        "php_ver": "7.4",
         "supervisor": True,
+        "jobber": True,
     }
 
     dryRun = dry
@@ -76,6 +78,10 @@ def init(default, dry):
         settings["nodejs"] = click.confirm("Nodejs ?", settings["nodejs"])
         settings["php"] = click.confirm("PHP ?", settings["php"])
         settings["supervisor"] = click.confirm("Supervisor ?", settings["supervisor"])
+        settings["jobber"] = click.confirm("Jobber (cron alternative) ?", settings["jobber"])
+
+        if settings["php"]:
+            settings["php_ver"] = click.confirm("PHP Version [7.4 | 8.0] ?", settings["php_ver"])
 
     # ensure homedir is existed
     if not os.path.exists(home_dir):
@@ -92,7 +98,16 @@ def init(default, dry):
     else:
         click.echo("FAILED !")
 
+@click.command()
+@click.option('--dry', is_flag=True, prompt='Dry run?')
+def web(dry):
+    username = click.prompt("Username ? ")
+    mysql_random_password  = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(12))
+
+    ret = run_script_template("web/create_user.sh.twig", **init_settings, username=username, mysql_password=mysql_random_password)
+
 cli.add_command(init)
+cli.add_command(web)
 
 if __name__ == '__main__':
     cli()
