@@ -37,7 +37,7 @@ def run_script(script_content):
     endpoint_cmd = '/usr/bin/cat' if dryRun or os.uname()[1] == 'khanhicetea-xps' else '/usr/bin/sh'
 
     print("Running {} {}".format(endpoint_cmd, tmp_file))
-    with subprocess.Popen([endpoint_cmd, tmp_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False) as proc:
+    with subprocess.Popen([endpoint_cmd, tmp_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, universal_newlines=True) as proc:
         for l in proc.stdout:
             print(l, end='')
     return proc.returncode

@@ -64,7 +64,7 @@ sudo mv /tmp/new_phpfpm_pool.conf /etc/php/${PHP_VER}/fpm/pool.d/$USERNAME.conf
 sudo rm -f /etc/php/${PHP_VER}/fpm/pool.d/www.conf
 
 # Reload php-fpm service
-sudo systemctl reload php${PHP_VER}-fpm.service
+sudo systemctl reload "php${PHP_VER}-fpm.service"
 {% endif %}
 
 {% if mysql %}
