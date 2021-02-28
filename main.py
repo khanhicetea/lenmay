@@ -81,7 +81,7 @@ def init(default, dry):
         settings["jobber"] = click.confirm("Jobber (cron alternative) ?", settings["jobber"])
 
         if settings["php"]:
-            settings["php_ver"] = click.confirm("PHP Version [7.4 | 8.0] ?", settings["php_ver"])
+            settings["php_ver"] = click.prompt("PHP Version [7.4 | 8.0] ?", default=settings["php_ver"])
 
     # ensure homedir is existed
     if not os.path.exists(home_dir):
