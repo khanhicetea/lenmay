@@ -111,6 +111,32 @@ include fastcgi.conf;
 EOF
 sudo mv /tmp/nginx_conf /etc/nginx/fastcgi_snippets
 
+cat >/tmp/nginx_conf <<EOF
+ssl_session_timeout 60m;
+ssl_protocols TLSv1.1 TLSv1.2;
+ssl_ciphers 'ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DHE+AES128:!ADH:!AECDH:!MD5';
+ssl_session_cache shared:SSL:30m;
+ssl_prefer_server_ciphers on;
+ssl_dhparam /etc/nginx/certs/dhparam.pem;
+add_header Strict-Transport-Security "max-age=31536000";
+
+location ~ /\\.  {
+    deny all;
+    access_log off;
+    log_not_found off;
+    return 404;
+}
+location ~* ^.+\\.(?:css|cur|js|jpe?g|gif|htc|ico|png|xml|otf|ttf|eot|woff|svg)\$ {
+    try_files \$uri =404;
+    access_log off;
+    expires 30d;
+}
+location ~* \\.(eot|ttf|woff)\$ {
+    add_header Access-Control-Allow-Origin '*';
+}
+EOF
+sudo mv /tmp/nginx_conf /etc/nginx/server_snipets
+
 openssl rand 2048 > ~/.rnd
 sudo mkdir /etc/nginx/ssl
 sudo mkdir /etc/nginx/certs

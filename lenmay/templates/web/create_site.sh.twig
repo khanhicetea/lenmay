@@ -1,0 +1,77 @@
+#!/bin/bash
+
+USERNAME="{{ username }}"
+DOMAINS="{{ domains }}"
+MAIN_DOMAIN="{{ main_domain }}"
+LE_EMAIL="{{ le_email }}"
+DOC_ROOT_DIR="{{ root_dir }}"
+
+if [ ! -d "/home/$USERNAME" ]; then
+    ./create_user.sh $USERNAME
+fi
+
+sudo mkdir -p /home/$USERNAME/$MAIN_DOMAIN
+sudo chown -R $USERNAME:www-data /home/$USERNAME/$MAIN_DOMAIN
+sudo openssl req -new -x509 -nodes -days 3650 -newkey rsa:2048 -subj "/C=US/ST=Nil/L=Nil/O=Nil/CN=$MAIN_DOMAIN" -keyout /etc/nginx/ssl/$MAIN_DOMAIN.key -out /etc/nginx/ssl/$MAIN_DOMAIN.crt
+cat >/tmp/new_nginx_site.conf <<EOF
+server {
+        listen 80;
+        server_name ${DOMAINS};
+        
+        location /.well-known {
+                alias /usr/share/nginx/acme-challenge/.well-known;
+        }
+        location / {
+                return 301 https://\$server_name\$request_uri;
+        }
+}
+server {
+        listen 443 ssl http2;
+        server_name ${DOMAINS};
+        root ${DOC_ROOT_DIR};
+        
+        ssl_certificate /etc/nginx/ssl/${MAIN_DOMAIN}.crt;
+        ssl_certificate_key /etc/nginx/ssl/${MAIN_DOMAIN}.key;
+        
+        include server_snipets;
+
+        {% if php %}
+        location / {
+                try_files \$uri /index.php\$is_args\$args;
+        }
+
+        location ~ \\.php\$ {
+                include fastcgi_snippets;
+                fastcgi_pass unix:/var/run/php/php{{ php_ver }}-fpm.${USERNAME}.sock;
+        }
+        {% else %}
+        location / {
+                try_files \$uri \$uri/ =404;
+        }
+        {% endif %}
+}
+EOF
+
+{% set domain_lists = domains.split(' ') %}
+
+sudo mv /tmp/new_nginx_site.conf /etc/nginx/conf.d/$MAIN_DOMAIN.conf
+sudo systemctl reload nginx.service
+sudo /usr/local/bin/lego -a -k rsa2048 --path /var/lego --email $LE_EMAIL --http --http.webroot="/usr/share/nginx/acme-challenge" \
+        {% for d in domain_lists %}
+        --domains {{ d }} \
+        {% endfor %}
+        run
+sudo sed -i 's/\/etc\/nginx\/ssl/\/var\/lego\/certificates/' /etc/nginx/conf.d/$MAIN_DOMAIN.conf
+sudo systemctl reload nginx.service
+
+echo "$MAIN_DOMAIN|$LE_EMAIL" >> ~/.renew_MAIN_domains
+
+if [ $# -eq 5 ]
+then
+    DB="$5"
+    DB_NAME=${USERNAME}_${DB}
+    mysql -e "CREATE SCHEMA \`$DB_NAME\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+fi
+
+# Done
+echo -e "\nDone ! Enjoy it !"

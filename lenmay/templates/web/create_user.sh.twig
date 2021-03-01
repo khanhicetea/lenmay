@@ -2,7 +2,7 @@
 
 USERNAME="{{ username }}"
 
-if id "$USERNAME" &>/dev/null; then
+if id -u "$USERNAME" >/dev/null 2>&1; then
     echo 'User existed!'
     exit 0
 fi
@@ -70,5 +70,5 @@ sudo systemctl reload "php${PHP_VER}-fpm.service"
 {% if mysql %}
 # Create MySQL user
 mysql -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '{{ mysql_password }}'; GRANT ALL PRIVILEGES ON \`${USERNAME}\\_%\`.* TO '${USERNAME}'@'%'; FLUSH PRIVILEGES;"
-echo "MySQL user password is ${USERNAME} {{ mysql_password }}"
+echo "MySQL user password is ${USERNAME} / {{ mysql_password }}"
 {% endif %}

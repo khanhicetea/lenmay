@@ -28,10 +28,6 @@
     {% include('init/supervisor.sh.twig') %}
 {% endif %}
 
-{% if netdata %}
-    {% include('init/netdata.sh.twig') %}
-{% endif %}
-
 # DONE
 echo "BAMMMMM ! It's done !"
 echo "=== Your MySQL user / password : lenmay / {{ mysql_root_password }}"

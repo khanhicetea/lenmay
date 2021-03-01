@@ -45,6 +45,9 @@ def run_script(script_content):
 def run_script_template(filepath, **context):
     return run_script(render_script(filepath, **context))
 
+def random_string(length):
+    return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(length))
+
 @click.group()
 def cli():
     pass
@@ -66,12 +69,14 @@ def init(default, dry):
         "php_ver": "7.4",
         "supervisor": True,
         "jobber": True,
+        "email": "",
     }
 
     dryRun = dry
 
     if not default:
-        settings["timezone"] = click.prompt("Default timezone ? ", default=settings["timezone"])
+        settings["email"] = click.prompt("Email (for LetsEncrypt) ?")
+        settings["timezone"] = click.prompt("Default timezone ?", default=settings["timezone"])
         settings["nginx"] = click.confirm("NginX ?", settings["nginx"])
         settings["mysql"] = click.confirm("Mysql ?", settings["mysql"])
         settings["redis"] = click.confirm("Redis ?", settings["redis"])
@@ -81,13 +86,13 @@ def init(default, dry):
         settings["jobber"] = click.confirm("Jobber (cron alternative) ?", settings["jobber"])
 
         if settings["php"]:
-            settings["php_ver"] = click.prompt("PHP Version [7.4 | 8.0] ?", default=settings["php_ver"])
+            settings["php_ver"] = click.prompt("PHP Version ?", type=click.Choice(["7.4", "8.0"]), default=settings["php_ver"])
 
     # ensure homedir is existed
     if not os.path.exists(home_dir):
         os.mkdir(home_dir)
 
-    mysql_random_password  = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(12))
+    mysql_random_password = random_string(12)
 
     ret = run_script_template("init/main.sh.twig", **settings, mysql_root_password=mysql_random_password)
     
@@ -102,9 +107,20 @@ def init(default, dry):
 @click.option('--dry', is_flag=True, prompt='Dry run?')
 def web(dry):
     username = click.prompt("Username ? ")
-    mysql_random_password  = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(12))
+    domains = click.prompt("Domain (multi domains separated by space)")
+    main_domain = domains.split()[0]
+    le_email = click.prompt("Email for LetsEncrypt", init_settings["email"])
+    root_dir = click.prompt("Document Root", "/home/{}/{}/public".format(username, main_domain))
+    
+    mysql_random_password = random_string(12)
 
-    ret = run_script_template("web/create_user.sh.twig", **init_settings, username=username, mysql_password=mysql_random_password)
+    ret = run_script_template("web/create_user.sh.twig", **init_settings, username=username, mysql_password=mysql_random_password,
+        domains=domains, main_domain=main_domain, le_email=le_email, root_dir=root_dir)
+    
+    if ret == 0:
+        click.echo("DONE !")
+    else:
+        click.echo("FAILED !")
 
 cli.add_command(init)
 cli.add_command(web)
