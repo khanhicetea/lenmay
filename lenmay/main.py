@@ -115,10 +115,10 @@ def web(dry):
 
     mysql_random_password = random_string(12)
     dryRun = dry
-    ret = run_script_template("web/create_user.sh.twig", **init_settings, username=username)
+    ret = run_script_template("web/create_user.sh.twig", **init_settings, username=username, mysql_password=mysql_random_password)
     
     if ret == 0:
-        ret = run_script_template("web/create_site.sh.twig", **init_settings, username=username, mysql_password=mysql_random_password,
+        ret = run_script_template("web/create_site.sh.twig", **init_settings, username=username,
             domains=domains, main_domain=main_domain, le_email=le_email, root_dir=root_dir, mysql_db=mysql_db)
         if ret == 0:
             click.echo("DONE !")
