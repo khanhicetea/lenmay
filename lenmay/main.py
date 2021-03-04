@@ -114,7 +114,7 @@ def web(dry):
     mysql_db = click.prompt("DB Name (without prefix {}_ ,leave blank if no need)".format(username))
 
     mysql_random_password = random_string(12)
-
+    dryRun = dry
     ret = run_script_template("web/create_user.sh.twig", **init_settings, username=username)
     
     if ret == 0:
