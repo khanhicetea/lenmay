@@ -5,6 +5,7 @@ DOMAINS="{{ domains }}"
 MAIN_DOMAIN="{{ main_domain }}"
 LE_EMAIL="{{ le_email }}"
 DOC_ROOT_DIR="{{ root_dir }}"
+DB_NAME="{{ mysql_db }}"
 
 if [ ! -d "/home/$USERNAME" ]; then
     ./create_user.sh $USERNAME
@@ -64,14 +65,12 @@ sudo /usr/local/bin/lego -a -k rsa2048 --path /var/lego --email $LE_EMAIL --http
 sudo sed -i 's/\/etc\/nginx\/ssl/\/var\/lego\/certificates/' /etc/nginx/conf.d/$MAIN_DOMAIN.conf
 sudo systemctl reload nginx.service
 
-echo "$MAIN_DOMAIN|$LE_EMAIL" >> ~/.renew_MAIN_domains
+echo "$MAIN_DOMAIN|$LE_EMAIL" >> ~/.renew_domains
 
-if [ $# -eq 5 ]
-then
-    DB="$5"
-    DB_NAME=${USERNAME}_${DB}
-    mysql -e "CREATE SCHEMA \`$DB_NAME\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-fi
+{% if mysql_db %}
+    MYSQL_DB_NAME=${USERNAME}_${DB_NAME}
+    mysql -e "CREATE SCHEMA \`$MYSQL_DB_NAME\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+{% endif %}
 
 # Done
 echo -e "\nDone ! Enjoy it !"

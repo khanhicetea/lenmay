@@ -111,11 +111,12 @@ def web(dry):
     main_domain = domains.split()[0]
     le_email = click.prompt("Email for LetsEncrypt", init_settings["email"])
     root_dir = click.prompt("Document Root", "/home/{}/{}/public".format(username, main_domain))
-    
+    mysql_db = click.prompt("DB Name (without prefix {}_ ,leave blank if no need)".format(username))
+
     mysql_random_password = random_string(12)
 
     ret = run_script_template("web/create_user.sh.twig", **init_settings, username=username, mysql_password=mysql_random_password,
-        domains=domains, main_domain=main_domain, le_email=le_email, root_dir=root_dir)
+        domains=domains, main_domain=main_domain, le_email=le_email, root_dir=root_dir, mysql_db=mysql_db)
     
     if ret == 0:
         click.echo("DONE !")
