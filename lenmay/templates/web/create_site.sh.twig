@@ -7,9 +7,6 @@ LE_EMAIL="{{ le_email }}"
 DOC_ROOT_DIR="{{ root_dir }}"
 DB_NAME="{{ mysql_db }}"
 
-if [ ! -d "/home/$USERNAME" ]; then
-    ./create_user.sh $USERNAME
-fi
 
 sudo mkdir -p /home/$USERNAME/$MAIN_DOMAIN
 sudo chown -R $USERNAME:www-data /home/$USERNAME/$MAIN_DOMAIN
