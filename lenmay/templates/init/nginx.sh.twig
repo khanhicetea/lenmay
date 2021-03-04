@@ -149,3 +149,4 @@ sudo systemctl restart nginx.service
 
 # Install lego acme
 wget https://github.com/go-acme/lego/releases/download/v4.2.0/lego_v4.2.0_linux_amd64.tar.gz && mkdir lego_linux && tar xf lego_v4.2.0_linux_amd64.tar.gz -C lego_linux && chmod +x lego_linux/lego && sudo mv lego_linux/lego /usr/bin/lego && rm -f lego_v4.2.0_linux_amd64.tar.gz && rm -rf lego_linux
+sudo mkdir -p /var/lego/certificates
