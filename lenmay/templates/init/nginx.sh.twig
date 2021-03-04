@@ -107,7 +107,7 @@ fastcgi_buffering on;
 fastcgi_buffer_size 64k;
 fastcgi_buffers 8 64k;
 
-include fastcgi.conf;
+include fastcgi_params;
 EOF
 sudo mv /tmp/nginx_conf /etc/nginx/fastcgi_snippets
 
