@@ -71,6 +71,3 @@ echo "$MAIN_DOMAIN|$LE_EMAIL" >> ~/.renew_domains
     MYSQL_DB_NAME=${USERNAME}_${DB_NAME}
     mysql -e "CREATE SCHEMA \`$MYSQL_DB_NAME\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 {% endif %}
-
-# Done
-echo -e "\nDone ! Enjoy it !"
