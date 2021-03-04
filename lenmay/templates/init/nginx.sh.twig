@@ -144,9 +144,55 @@ sudo mkdir /usr/share/nginx/acme-challenge
 echo "nginx   soft    nofile  5000" | sudo tee -a /etc/security/limits.conf
 echo "nginx   hard    nofile  10000" | sudo tee -a /etc/security/limits.conf
 sudo openssl dhparam -dsaparam -out /etc/nginx/certs/dhparam.pem 2048
+
+cat >/tmp/nginx_conf <<EOF
+#!/bin/sh
+
+FILE=/tmp/reload_nginx
+if test -f "$FILE"; then
+    rm "$FILE"
+    sudo systemctl reload nginx.service
+    exit 0
+fi
+exit 1
+EOF
+sudo mv /tmp/nginx_conf /etc/nginx/ssl/cron_reload_nginx.sh
+
+cat >/tmp/nginx_conf <<EOF
+#!/bin/sh
+
+FILE=/tmp/reload_nginx
+touch "$FILE"
+exit 0
+EOF
+sudo mv /tmp/nginx_conf /etc/nginx/ssl/reload_nginx.sh
+
+sudo chmod +x /etc/nginx/ssl/cron_reload_nginx.sh
+sudo chmod +x /etc/nginx/ssl/reload_nginx.sh
+echo "* * * * * root /etc/nginx/ssl/cron_reload_nginx.sh" | sudo tee -a /etc/crontab
+
 sudo systemctl enable nginx.service
 sudo systemctl restart nginx.service
 
 # Install lego acme
+
+cat >/tmp/nginx_conf <<EOF
+#/bin/sh
+
+echo -e "\n===== Automated Renew Certificates ====="
+
+while IFS='|' read -r domain email
+do
+    echo -e "\n- Trying to renew domain $domain of $email"
+    sudo /usr/bin/lego -a -k rsa2048 --path /var/lego --email $email --domains $domain --http --http.webroot=/usr/share/nginx/acme-challenge renew --days 30 --renew-hook="/etc/nginx/ssl/reload_nginx.sh"
+done < ~/.renew_domains
+
+echo -e "\n===== DONE ====="
+EOF
+sudo mv /tmp/nginx_conf /etc/nginx/ssl/renew_certs.sh
+
+sudo chmod +x /etc/nginx/ssl/renew_certs.sh
+echo "0 0 */5 * * root /etc/nginx/ssl/renew_certs.sh" | sudo tee -a /etc/crontab
+
 wget https://github.com/go-acme/lego/releases/download/v4.2.0/lego_v4.2.0_linux_amd64.tar.gz && mkdir lego_linux && tar xf lego_v4.2.0_linux_amd64.tar.gz -C lego_linux && chmod +x lego_linux/lego && sudo mv lego_linux/lego /usr/bin/lego && rm -f lego_v4.2.0_linux_amd64.tar.gz && rm -rf lego_linux
 sudo mkdir -p /var/lego/certificates
