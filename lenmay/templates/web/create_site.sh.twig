@@ -54,7 +54,7 @@ EOF
 
 sudo mv /tmp/new_nginx_site.conf /etc/nginx/conf.d/$MAIN_DOMAIN.conf
 sudo systemctl reload nginx.service
-sudo /usr/local/bin/lego -a -k rsa2048 --path /var/lego --email $LE_EMAIL --http --http.webroot="/usr/share/nginx/acme-challenge" \
+sudo /usr/bin/lego -a -k rsa2048 --path /var/lego --email $LE_EMAIL --http --http.webroot="/usr/share/nginx/acme-challenge" \
         {% for d in domain_lists %}
         --domains {{ d }} \
         {% endfor %}
