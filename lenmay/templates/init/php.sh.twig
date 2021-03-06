@@ -5,7 +5,7 @@ sudo add-apt-repository ppa:ondrej/php -y
 sudo apt update
 sudo apt install -y php{{ php_ver }}-bz2 php{{ php_ver }}-cli php{{ php_ver }}-common php{{ php_ver }}-curl php{{ php_ver }}-fpm \
     php{{ php_ver }}-gd php{{ php_ver }}-intl php{{ php_ver }}-mbstring php{{ php_ver }}-mysql php{{ php_ver }}-opcache \
-    php{{ php_ver }}-readline php{{ php_ver }}-xml php{{ php_ver }}-xmlrpc php{{ php_ver }}-xsl php{{ php_ver }}-zip
+    php{{ php_ver }}-readline php{{ php_ver }}-xml php{{ php_ver }}-xmlrpc php{{ php_ver }}-xsl php{{ php_ver }}-zip php{{ php_ver }}-redis
 sudo sed -i "s/;date.timezone =.*/date.timezone = {{ timezone | replace("/", "\/") }}/" /etc/php/{{ php_ver }}/cli/php.ini
 sudo sed -i "s/;date.timezone =.*/date.timezone = {{ timezone | replace("/", "\/") }}/" /etc/php/{{ php_ver }}/fpm/php.ini
 sudo sed -i "s/; max_input_vars =.*/max_input_vars = 10000/" /etc/php/{{ php_ver }}/fpm/php.ini
