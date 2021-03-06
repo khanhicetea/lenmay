@@ -20,6 +20,10 @@
     {% include('init/php.sh.twig') %}
 {% endif %}
 
+{% if nodejs %}
+    {% include('init/nodejs.sh.twig') %}
+{% endif %}
+
 {% if jobber %}
     {% include('init/jobber.sh.twig') %}
 {% endif %}
