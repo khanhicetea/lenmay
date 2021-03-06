@@ -57,7 +57,7 @@ def run_script(script_content):
     print("Running {} {}".format(endpoint_cmd, tmp_file))
     with subprocess.Popen([endpoint_cmd, tmp_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, universal_newlines=True) as proc:
         for l in proc.stdout:
-            print(l, end='')
+            print(l.lstrip("\t"), end='')
     return proc.returncode
 
 def run_script_template(filepath, **context):
