@@ -1,0 +1,2 @@
+include *.twig
+recursive-include lenmay *.twig *.py
