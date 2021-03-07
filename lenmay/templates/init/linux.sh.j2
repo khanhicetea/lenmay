@@ -31,7 +31,8 @@ echo "net.ipv6.conf.lo.disable_ipv6 = 1" | sudo tee -a /etc/sysctl.conf
 
 echo "fs.file-max = 100000" | sudo tee -a /etc/sysctl.conf
 
-echo "vm.swappiness = 5" | sudo tee -a /etc/sysctl.conf
+# swap should be very low, memory is cheap nowaday
+echo "vm.swappiness = 1" | sudo tee -a /etc/sysctl.conf
 echo "vm.dirty_ratio = 60" | sudo tee -a /etc/sysctl.conf
 echo "vm.dirty_background_ratio = 10" | sudo tee -a /etc/sysctl.conf
 
