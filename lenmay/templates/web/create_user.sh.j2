@@ -4,7 +4,6 @@ USERNAME="{{ username }}"
 
 if id -u "$USERNAME" >/dev/null 2>&1; then
     echo 'User existed!'
-    exit 999
 fi
 
 sudo useradd -m -N -g www-data $USERNAME
