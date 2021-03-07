@@ -1,2 +1,2 @@
-include *.twig
-recursive-include lenmay *.twig *.py
+include *.j2
+recursive-include lenmay *.j2 *.py

@@ -71,9 +71,9 @@ def cli():
     pass
 
 @click.command()
-@click.option('--default', is_flag=True, default=True, prompt='Default settings')
 @click.option('--dry', is_flag=True, prompt='Dry run?')
-def init(default, dry):
+@click.option('--default', is_flag=True, default=True, prompt='Default settings')
+def init(dry, default):
     global dryRun
     dryRun = dry
 
@@ -150,7 +150,7 @@ def web(dry):
         if ret1 == 0:
             click.echo("===================================================================")
             click.echo("Created domain {} inside {} user home".format(main_domain, username))
-            if ret0 == 999:
+            if ret0 != 999:
                 click.echo("Your MySQL user / password is : {} / {}".format(username, mysql_random_password))
             click.echo("===================================================================")
             return click.echo("DONE !")

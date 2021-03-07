@@ -18,16 +18,13 @@ requirements = [
 
 setup(
     name='lenmay',
-    version='0.1.4',
+    version='0.1.7',
     description="CLI tool to len may!",
     long_description=readme,
     author="KhanhIceTea",
     author_email='khanhicetea@gmail.com',
     url='https://github.com/khanhicetea/lenmay',
     packages=find_packages(include=['lenmay']),
-    package_data={
-        "lenmay/templates": ["init/*.twig"],
-    },
     entry_points={
         'console_scripts': [
             'lenmay=lenmay:cli'
