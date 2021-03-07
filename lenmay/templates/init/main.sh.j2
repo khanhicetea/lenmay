@@ -1,0 +1,37 @@
+#!/bin/bash
+
+{% include('init/linux.sh.j2') %}
+
+{% include('init/security.sh.j2') %}
+
+{% if nginx %}
+    {% include('init/nginx.sh.j2') %}
+{% endif %}
+
+{% if mysql %}
+    {% include('init/mysql.sh.j2') %}
+{% endif %}
+
+{% if redis %}
+    {% include('init/redis.sh.j2') %}
+{% endif %}
+
+{% if php %}
+    {% include('init/php.sh.j2') %}
+{% endif %}
+
+{% if nodejs %}
+    {% include('init/nodejs.sh.j2') %}
+{% endif %}
+
+{% if jobber %}
+    {% include('init/jobber.sh.j2') %}
+{% endif %}
+
+{% if supervisor %}
+    {% include('init/supervisor.sh.j2') %}
+{% endif %}
+
+# DONE
+echo "BAMMMMM ! It's done !"
+echo "=== Your MySQL user / password : lenmay / {{ mysql_root_password }}"

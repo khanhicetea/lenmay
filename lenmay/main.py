@@ -51,13 +51,13 @@ def run_script(script_content):
     tmp_file = "/tmp/lenmay-{}.sh".format(random.randint(10E9, 10E12))
     write_to_file(tmp_file, script_content)
     
-    # i don't want to run on my dev computer
+    # i don't want to run on my dev computer, sorry for hard-code
     endpoint_cmd = '/usr/bin/cat' if dryRun or os.uname()[1] == 'khanhicetea-xps' else '/usr/bin/sh'
 
     print("Running {} {}".format(endpoint_cmd, tmp_file))
     with subprocess.Popen([endpoint_cmd, tmp_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, universal_newlines=True) as proc:
         for l in proc.stdout:
-            print(l.lstrip("\t"), end='')
+            print(l, end='')
     return proc.returncode
 
 def run_script_template(filepath, **context):
@@ -113,7 +113,7 @@ def init(default, dry):
 
     mysql_random_password = random_string(12)
 
-    ret = run_script_template("init/main.sh.twig", **settings, mysql_root_password=mysql_random_password)
+    ret = run_script_template("init/main.sh.j2", **settings, mysql_root_password=mysql_random_password)
     
     if ret == 0:
         # write settings to home
@@ -142,12 +142,17 @@ def web(dry):
             return click.echo("Oops ! Please point the domain {} to {}".format(d, current_ip))
 
     mysql_random_password = random_string(12)
-    ret = run_script_template("web/create_user.sh.twig", **init_settings, username=username, mysql_password=mysql_random_password)
+    ret0 = run_script_template("web/create_user.sh.j2", **init_settings, username=username, mysql_password=mysql_random_password)
     
-    if ret == 0:
-        ret = run_script_template("web/create_site.sh.twig", **init_settings, username=username, list_domains=list_domains,
+    if ret0 == 0 or ret0 == 999:
+        ret1 = run_script_template("web/create_site.sh.j2", **init_settings, username=username, list_domains=list_domains,
             domains=domains, main_domain=main_domain, le_email=le_email, root_dir=root_dir, mysql_db=mysql_db)
-        if ret == 0:
+        if ret1 == 0:
+            click.echo("===================================================================")
+            click.echo("Created domain {} inside {} user home".format(main_domain, username))
+            if ret0 == 999:
+                click.echo("Your MySQL user / password is : {} / {}".format(username, mysql_random_password))
+            click.echo("===================================================================")
             return click.echo("DONE !")
 
     click.echo("FAILED !")
