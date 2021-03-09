@@ -19,7 +19,7 @@ requirements = [
 
 setup(
     name='lenmay',
-    version='0.1.9',
+    version='0.2.0',
     description="CLI tool to len may!",
     long_description=readme,
     author="KhanhIceTea",
