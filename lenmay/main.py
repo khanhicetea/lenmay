@@ -2,11 +2,14 @@ import click
 import requests
 import os
 import sys
+import pwd
 import json
 import string
 import random
 import subprocess
 from jinja2 import Environment, PackageLoader, select_autoescape
+from psutil import virtual_memory
+from math import floor, ceil, log2
 
 dryRun = False
 home_dir = os.path.expanduser("~") + "/.lenmay"
@@ -66,6 +69,20 @@ def run_script_template(filepath, **context):
 def random_string(length):
     return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(length))
 
+def innodb_buffer_pool_size():
+    mem = virtual_memory()
+    if mem < (1 * 1024 * 1024 * 1024):
+        return 128
+    instances = max(1, floor(mem.total / (128 * 1024 * 1024) * 0.40))
+    return instances * 128
+
+def is_user_exists(username):
+    try:
+        pwd.getpwnam(username)
+        return True
+    except KeyError:
+        return False
+
 @click.group()
 def cli():
     pass
@@ -111,9 +128,10 @@ def init(dry, default):
     if not os.path.exists(home_dir):
         os.mkdir(home_dir)
 
+    pool_size = innodb_buffer_pool_size()
     mysql_random_password = random_string(12)
 
-    ret = run_script_template("init/main.sh.j2", **settings, mysql_root_password=mysql_random_password)
+    ret = run_script_template("init/main.sh.j2", **settings, mysql_root_password=mysql_random_password, innodb_pool_size=pool_size)
     
     if ret == 0:
         # write settings to home
@@ -142,15 +160,16 @@ def web(dry):
             return click.echo("Oops ! Please point the domain {} to {}".format(d, current_ip))
 
     mysql_random_password = random_string(12)
-    ret0 = run_script_template("web/create_user.sh.j2", **init_settings, username=username, mysql_password=mysql_random_password)
+    user_existed = is_user_exists(username)
+    ret0 = 0 if user_existed else run_script_template("web/create_user.sh.j2", **init_settings, username=username, mysql_password=mysql_random_password)
     
-    if ret0 == 0 or ret0 == 999:
+    if ret0 == 0:
         ret1 = run_script_template("web/create_site.sh.j2", **init_settings, username=username, list_domains=list_domains,
             domains=domains, main_domain=main_domain, le_email=le_email, root_dir=root_dir, mysql_db=mysql_db)
         if ret1 == 0:
             click.echo("===================================================================")
             click.echo("Created domain {} inside {} user home".format(main_domain, username))
-            if ret0 != 999:
+            if not user_existed:
                 click.echo("Your MySQL user / password is : {} / {}".format(username, mysql_random_password))
             click.echo("===================================================================")
             return click.echo("DONE !")

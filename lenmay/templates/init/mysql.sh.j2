@@ -3,13 +3,31 @@
 # MySQL 8
 export DEBIAN_FRONTEND=noninteractive
 sudo apt install mysql-server mysql-client -y
+
+cat >/tmp/mysqld_conf <<EOF
+[mysqld]
+bind_address    = 127.0.0.1
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+log-error       = /var/log/mysql/error.log
+
+innodb_buffer_pool_size = {{ innodb_pool_size }}M
+innodb_log_file_size    = 256M
+max_connections         = 150
+disable_log_bin
+skip_name_resolve
+EOF
+sudo mv -f /tmp/mysqld_conf /etc/mysql/mysql.conf.d/mysqld.cnf
+
 sudo systemctl enable mysql.service
 sudo systemctl restart mysql.service
 
 echo "### Create another root user"
-echo "CREATE USER 'lenmay'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';" | mysql -u root mysql
-echo "GRANT ALL PRIVILEGES ON *.* TO 'lenmay'@'localhost' WITH GRANT OPTION;" | mysql -u root mysql
+echo "CREATE USER 'lenmay'@'127.0.0.1' IDENTIFIED BY '{{ mysql_root_password }}';" | mysql -u root mysql
+echo "GRANT ALL PRIVILEGES ON *.* TO 'lenmay'@'127.0.0.1' WITH GRANT OPTION;" | mysql -u root mysql
 echo "FLUSH PRIVILEGES;" | mysql -u root mysql
 
-echo "[client]\nuser=lenmay\npassword={{ mysql_root_password }}" > ~/.my.cnf
+echo "[client]\nhost=127.0.0.1\nuser=lenmay\npassword={{ mysql_root_password }}" > ~/.my.cnf
 chmod 600 ~/.my.cnf
+

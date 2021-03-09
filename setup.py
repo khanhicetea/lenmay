@@ -14,6 +14,7 @@ requirements = [
     'MarkupSafe==1.1.1',
     'requests==2.25.1',
     'urllib3==1.26.3',
+    'psutil==5.8.0',
 ]
 
 setup(
