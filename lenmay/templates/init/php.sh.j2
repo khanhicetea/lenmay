@@ -8,7 +8,7 @@ sudo apt install -y php{{ php_ver }}-bz2 php{{ php_ver }}-cli php{{ php_ver }}-c
     php{{ php_ver }}-readline php{{ php_ver }}-xml php{{ php_ver }}-xmlrpc php{{ php_ver }}-xsl php{{ php_ver }}-zip php{{ php_ver }}-redis
 sudo sed -i "s/;date.timezone =.*/date.timezone = {{ timezone | replace("/", "\/") }}/" /etc/php/{{ php_ver }}/cli/php.ini
 sudo sed -i "s/;date.timezone =.*/date.timezone = {{ timezone | replace("/", "\/") }}/" /etc/php/{{ php_ver }}/fpm/php.ini
-sudo sed -i "s/; max_input_vars =.*/max_input_vars = 10000/" /etc/php/{{ php_ver }}/fpm/php.ini
+sudo sed -i "s/;max_input_vars =.*/max_input_vars = 10000/" /etc/php/{{ php_ver }}/fpm/php.ini
 sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 10M/" /etc/php/{{ php_ver }}/fpm/php.ini
 sudo sed -i "s/post_max_size = .*/post_max_size = 12M/" /etc/php/{{ php_ver }}/fpm/php.ini
 sudo sed -i "s/max_execution_time = .*/max_execution_time = 60/" /etc/php/{{ php_ver }}/fpm/php.ini
