@@ -71,7 +71,7 @@ def random_string(length):
 
 def innodb_buffer_pool_size():
     mem = virtual_memory()
-    if mem < (1 * 1024 * 1024 * 1024):
+    if mem.total < (1 * 1024 * 1024 * 1024):
         return 128
     instances = max(1, floor(mem.total / (128 * 1024 * 1024) * 0.40))
     return instances * 128
