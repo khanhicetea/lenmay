@@ -7,6 +7,7 @@
 - Step 1 : Install python3 pip
 
 ```bash
+$ apt install python3-distutils
 $ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 $ python3 get-pip.py
 ```
