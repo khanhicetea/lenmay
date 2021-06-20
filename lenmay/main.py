@@ -61,6 +61,7 @@ def run_script(script_content):
     with subprocess.Popen([endpoint_cmd, tmp_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, universal_newlines=True) as proc:
         for l in proc.stdout:
             print(l, end='')
+    os.remove(tmp_file)
     return proc.returncode
 
 def run_script_template(filepath, **context):
